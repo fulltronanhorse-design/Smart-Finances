@@ -3,382 +3,591 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finance Tracker - Production Ready</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Finance Tracker - Professional Design System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .drag-active { border-color: #3b82f6; background-color: #eff6ff; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* DESIGN TOKENS */
+        :root {
+            --color-primary: #2563eb;
+            --color-primary-hover: #1d4ed8;
+            --color-primary-light: #dbeafe;
+            --color-success: #10b981;
+            --color-success-light: #d1fae5;
+            --color-danger: #ef4444;
+            --color-danger-light: #fee2e2;
+            --color-warning: #f59e0b;
+            --color-warning-light: #fef3c7;
+            --color-white: #ffffff;
+            --color-gray-50: #f9fafb;
+            --color-gray-100: #f3f4f6;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-600: #4b5563;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --spacing-1: 0.25rem;
+            --spacing-2: 0.5rem;
+            --spacing-3: 0.75rem;
+            --spacing-4: 1rem;
+            --spacing-6: 1.5rem;
+            --spacing-8: 2rem;
+            --spacing-12: 3rem;
+            --spacing-16: 4rem;
+            --border-radius-md: 0.375rem;
+            --border-radius-lg: 0.5rem;
+            --border-radius-full: 9999px;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --focus-ring: 0 0 0 3px rgba(37,99,235,0.4);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-family); background: var(--color-gray-50); color: var(--color-gray-800); min-height: 100vh; }
+        
+        /* Accessibility */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+        .focus-visible:focus { outline: none; box-shadow: var(--focus-ring); }
+        
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-2); padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all 150ms; }
+        .btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+        .btn--primary { background: var(--color-primary); color: white; }
+        .btn--primary:hover { background: var(--color-primary-hover); }
+        .btn--secondary { background: white; color: var(--color-gray-700); border-color: var(--color-gray-300); }
+        .btn--danger { background: var(--color-danger); color: white; }
+        .btn--danger:hover { background: #dc2626; }
+        .btn--lg { padding: var(--spacing-3) var(--spacing-6); font-size: 1rem; }
+        .btn--sm { padding: var(--spacing-1) var(--spacing-3); font-size: 0.75rem; }
+        .btn--loading { color: transparent !important; position: relative; }
+        .btn--loading::after { content: ''; position: absolute; width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.75s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Input */
+        .input { display: block; width: 100%; padding: var(--spacing-2) var(--spacing-3); font-size: 0.875rem; border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-md); }
+        .input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--focus-ring); }
+        
+        /* Card */
+        .card { background: white; border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
+        .card__header { padding: var(--spacing-4) var(--spacing-6); border-bottom: 1px solid var(--color-gray-200); background: var(--color-gray-50); }
+        .card__title { font-size: 1.125rem; font-weight: 600; color: var(--color-gray-800); }
+        .card__body { padding: var(--spacing-6); }
+        .card__footer { padding: var(--spacing-4) var(--spacing-6); border-top: 1px solid var(--color-gray-200); background: var(--color-gray-50); }
+        
+        /* Badge */
+        .badge { display: inline-flex; padding: var(--spacing-1) var(--spacing-2); font-size: 0.75rem; font-weight: 600; border-radius: var(--border-radius-full); }
+        .badge--info { background: var(--color-primary-light); color: var(--color-primary); }
+        .badge--success { background: var(--color-success-light); color: var(--color-success); }
+        .badge--danger { background: var(--color-danger-light); color: var(--color-danger); }
+        
+        /* Alert */
+        .alert { display: flex; gap: var(--spacing-3); padding: var(--spacing-4); border-radius: var(--border-radius-md); border: 1px solid; }
+        .alert--success { background: var(--color-success-light); border-color: var(--color-success); color: var(--color-success); }
+        .alert--error { background: var(--color-danger-light); border-color: var(--color-danger); color: var(--color-danger); }
+        
+        /* Skeleton */
+        .skeleton { background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-100) 50%, var(--color-gray-200) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--border-radius-md); }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton--row { height: 3rem; width: 100%; }
+        
+        /* Empty State */
+        .empty-state { display: flex; flex-direction: column; align-items: center; padding: var(--spacing-16); text-align: center; color: var(--color-gray-500); }
+        .empty-state__title { font-size: 1.25rem; font-weight: 600; color: var(--color-gray-700); margin: var(--spacing-6) 0 var(--spacing-2); }
+        .empty-state__desc { font-size: 0.875rem; margin-bottom: var(--spacing-6); max-width: 400px; }
+        
+        /* Navigation */
+        .nav { background: white; border-bottom: 1px solid var(--color-gray-200); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 50; }
+        .nav__content { display: flex; justify-content: space-between; align-items: center; height: 64px; max-width: 1280px; margin: 0 auto; padding: 0 var(--spacing-6); }
+        .nav__brand { display: flex; align-items: center; gap: var(--spacing-2); font-size: 1.25rem; font-weight: 700; }
+        .nav__logo { width: 32px; height: 32px; color: var(--color-primary); }
+        .nav__links { display: flex; gap: var(--spacing-1); }
+        .nav__link { padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; color: var(--color-gray-600); background: none; border: none; border-radius: var(--border-radius-md); cursor: pointer; }
+        .nav__link:hover { background: var(--color-gray-100); }
+        .nav__link--active { color: var(--color-primary); background: var(--color-primary-light); }
+        .nav__link:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+        
+        /* Layout */
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 var(--spacing-6); }
+        .main { padding: var(--spacing-8) 0; }
+        .section { animation: fadeIn 300ms; }
+        .section--hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .grid { display: grid; gap: var(--spacing-6); }
+        .grid--cols-1 { grid-template-columns: repeat(1, 1fr); }
+        @media (min-width: 768px) { .grid--cols-3 { grid-template-columns: repeat(3, 1fr); } .grid--cols-2 { grid-template-columns: repeat(2, 1fr); } }
+        
+        /* Upload Zone */
+        .upload-zone { border: 2px dashed var(--color-gray-300); border-radius: var(--border-radius-lg); padding: var(--spacing-12); text-align: center; background: white; cursor: pointer; transition: all 150ms; }
+        .upload-zone:hover, .upload-zone--drag-active { border-color: var(--color-primary); background: var(--color-primary-light); }
+        .upload-zone__icon { width: 48px; height: 48px; color: var(--color-gray-400); margin: 0 auto var(--spacing-4); }
+        .upload-zone__title { font-size: 1.125rem; color: var(--color-gray-600); margin-bottom: var(--spacing-2); }
+        .upload-zone__desc { font-size: 0.875rem; color: var(--color-gray-500); }
+        
+        /* Table */
+        .table-container { overflow-x: auto; border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-lg); background: white; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { background: var(--color-gray-50); padding: var(--spacing-4) var(--spacing-6); font-size: 0.75rem; font-weight: 600; color: var(--color-gray-500); text-transform: uppercase; text-align: left; }
+        .table td { padding: var(--spacing-4) var(--spacing-6); border-top: 1px solid var(--color-gray-200); font-size: 0.875rem; }
+        .table tr:hover { background: var(--color-gray-50); }
+        .table__numeric { text-align: right; font-weight: 500; }
+        
+        /* Mobile Cards */
+        .tx-card { display: none; padding: var(--spacing-4); border-bottom: 1px solid var(--color-gray-200); }
+        .tx-card:last-child { border-bottom: none; }
+        .tx-card__header { display: flex; justify-content: space-between; margin-bottom: var(--spacing-2); }
+        .tx-card__date { font-size: 0.75rem; color: var(--color-gray-500); }
+        .tx-card__amount { font-size: 1rem; font-weight: 600; }
+        .tx-card__amount--pos { color: var(--color-success); }
+        .tx-card__amount--neg { color: var(--color-danger); }
+        .tx-card__desc { font-size: 0.875rem; color: var(--color-gray-800); margin-bottom: var(--spacing-2); }
+        @media (max-width: 767px) { .table-desktop { display: none; } .tx-card { display: block; } }
+        
+        /* Stat Card */
+        .stat-card { background: white; border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-lg); padding: var(--spacing-6); box-shadow: var(--shadow-sm); }
+        .stat-card__label { font-size: 0.75rem; font-weight: 500; color: var(--color-gray-500); text-transform: uppercase; margin-bottom: var(--spacing-2); }
+        .stat-card__value { font-size: 1.875rem; font-weight: 700; }
+        .stat-card__value--pos { color: var(--color-success); }
+        .stat-card__value--neg { color: var(--color-danger); }
+        .stat-card__value--neu { color: var(--color-primary); }
+        
+        /* Chart */
+        .chart-container { position: relative; height: 300px; }
+        
+        /* Rules */
+        .rule-item { display: flex; gap: var(--spacing-3); align-items: center; padding: var(--spacing-4); background: var(--color-gray-50); border-radius: var(--border-radius-md); margin-bottom: var(--spacing-3); }
+        .rule-item__cat { min-width: 150px; }
+        .rule-item__kw { flex: 1; }
+        
+        /* Backup */
+        .backup-item { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-4); border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-md); margin-bottom: var(--spacing-2); }
+        
+        /* Utilities */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: var(--spacing-2); }
+        .mb-2 { margin-bottom: var(--spacing-2); }
+        .mb-4 { margin-bottom: var(--spacing-4); }
+        .mb-6 { margin-bottom: var(--spacing-6); }
+        .mb-8 { margin-bottom: var(--spacing-8); }
+        .mt-2 { margin-top: var(--spacing-2); }
+        .mt-4 { margin-top: var(--spacing-4); }
+        .mt-6 { margin-top: var(--spacing-6); }
+        .mt-8 { margin-top: var(--spacing-8); }
+        .w-full { width: 100%; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xl { font-size: 1.25rem; }
+        .font-semibold { font-weight: 600; }
+        .text-center { text-align: center; }
+        
+        /* Toast Notifications */
+        .toast-container { position: fixed; bottom: var(--spacing-6); right: var(--spacing-6); z-index: 100; display: flex; flex-direction: column; gap: var(--spacing-2); }
+        .toast { display: flex; align-items: center; gap: var(--spacing-3); padding: var(--spacing-4); background: white; border-radius: var(--border-radius-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.15); border-left: 4px solid; min-width: 300px; animation: slideIn 300ms ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast--success { border-color: var(--color-success); }
+        .toast--error { border-color: var(--color-danger); }
+        .toast--info { border-color: var(--color-primary); }
+        .toast__icon { width: 20px; height: 20px; }
+        .toast__message { flex: 1; font-size: 0.875rem; color: var(--color-gray-700); }
+        .toast__close { background: none; border: none; cursor: pointer; color: var(--color-gray-400); padding: var(--spacing-1); }
+        .toast__close:hover { color: var(--color-gray-600); }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 200ms; }
+        .modal-overlay--active { opacity: 1; visibility: visible; }
+        .modal { background: white; border-radius: var(--border-radius-lg); max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; transform: scale(0.95); transition: transform 200ms; }
+        .modal-overlay--active .modal { transform: scale(1); }
+        .modal__header { padding: var(--spacing-6); border-bottom: 1px solid var(--color-gray-200); display: flex; justify-content: space-between; align-items: center; }
+        .modal__title { font-size: 1.125rem; font-weight: 600; }
+        .modal__body { padding: var(--spacing-6); }
+        .modal__footer { padding: var(--spacing-4) var(--spacing-6); border-top: 1px solid var(--color-gray-200); display: flex; justify-content: flex-end; gap: var(--spacing-3); background: var(--color-gray-50); border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); }
+        
+        /* Category Colors */
+        .cat-food { background: #fef3c7; color: #92400e; }
+        .cat-transport { background: #dbeafe; color: #1e40af; }
+        .cat-shopping { background: #fce7f3; color: #9d174d; }
+        .cat-entertainment { background: #ede9fe; color: #5b21b6; }
+        .cat-bills { background: #fee2e2; color: #991b1b; }
+        .cat-income { background: #d1fae5; color: #065f46; }
+        .cat-other { background: #f3f4f6; color: #374151; }
+        
+        /* Mobile Nav Toggle */
+        .mobile-nav-toggle { display: none; background: none; border: none; color: var(--color-gray-600); cursor: pointer; }
+        @media (max-width: 767px) {
+            .nav__links { display: none; position: absolute; top: 64px; left: 0; right: 0; background: white; flex-direction: column; border-bottom: 1px solid var(--color-gray-200); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            .nav__links--active { display: flex; }
+            .nav__link { padding: var(--spacing-4) var(--spacing-6); border-radius: 0; }
+            .mobile-nav-toggle { display: block; }
+            .grid--cols-1 { grid-template-columns: 1fr; }
+            .stat-card__value { font-size: 1.5rem; }
+        }
+        
+        /* Search with icon */
+        .search-wrapper { position: relative; }
+        .search-icon { position: absolute; left: var(--spacing-3); top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--color-gray-400); pointer-events: none; }
+        .search-input { padding-left: calc(var(--spacing-3) + 20px + var(--spacing-2)); }
+        
+        /* Loading overlay */
+        .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--color-gray-200); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen text-gray-800">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <svg class="h-8 w-8 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span class="font-bold text-xl text-gray-900">Finance Tracker</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button onclick="showSection('dashboard')" class="text-blue-600 font-medium">Dashboard</button>
-                    <button onclick="showSection('transactions')" class="text-gray-600 hover:text-blue-600">Transactions</button>
-                    <button onclick="showSection('rules')" class="text-gray-600 hover:text-blue-600">Rules</button>
-                    <button onclick="showSection('backups')" class="text-gray-600 hover:text-blue-600">Backups</button>
-                </div>
+<body>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 btn btn--primary">Skip to main content</a>
+    
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+        <div class="nav__content">
+            <div class="nav__brand">
+                <svg class="nav__logo" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Finance Tracker</span>
+            </div>
+            <button class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Toggle navigation menu" aria-expanded="false">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div class="nav__links" role="tablist" id="navLinks">
+                <button class="nav__link nav__link--active" onclick="showSection('dashboard')" role="tab" aria-selected="true" aria-controls="dashboard">Dashboard</button>
+                <button class="nav__link" onclick="showSection('transactions')" role="tab" aria-selected="false" aria-controls="transactions">Transactions</button>
+                <button class="nav__link" onclick="showSection('rules')" role="tab" aria-selected="false" aria-controls="rules">Rules</button>
+                <button class="nav__link" onclick="showSection('backups')" role="tab" aria-selected="false" aria-controls="backups">Backups</button>
             </div>
         </div>
     </nav>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- Dashboard Section -->
-        <div id="dashboard" class="section fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase">Total Income</h3>
-                    <p id="totalIncome" class="text-3xl font-bold text-green-600 mt-2">$0.00</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase">Total Expenses</h3>
-                    <p id="totalExpenses" class="text-3xl font-bold text-red-600 mt-2">$0.00</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase">Net Balance</h3>
-                    <p id="netBalance" class="text-3xl font-bold text-blue-600 mt-2">$0.00</p>
-                </div>
+    
+    <main id="main-content" class="main container" role="main">
+        <!-- Dashboard -->
+        <section id="dashboard" class="section" role="tabpanel" aria-labelledby="tab-dashboard">
+            <div class="grid grid--cols-1 grid--cols-3 mb-8">
+                <article class="stat-card" aria-label="Total Income">
+                    <h2 class="stat-card__label">Total Income</h2>
+                    <p id="totalIncome" class="stat-card__value stat-card__value--pos" aria-live="polite">$0.00</p>
+                </article>
+                <article class="stat-card" aria-label="Total Expenses">
+                    <h2 class="stat-card__label">Total Expenses</h2>
+                    <p id="totalExpenses" class="stat-card__value stat-card__value--neg" aria-live="polite">$0.00</p>
+                </article>
+                <article class="stat-card" aria-label="Net Balance">
+                    <h2 class="stat-card__label">Net Balance</h2>
+                    <p id="netBalance" class="stat-card__value stat-card__value--neu" aria-live="polite">$0.00</p>
+                </article>
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
-                    <h3 class="text-lg font-semibold mb-4">Spending by Category</h3>
-                    <canvas id="categoryChart"></canvas>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
-                    <h3 class="text-lg font-semibold mb-4">Monthly Trend</h3>
-                    <canvas id="monthlyChart"></canvas>
-                </div>
+            <div class="grid grid--cols-1 grid--cols-2">
+                <article class="card">
+                    <header class="card__header"><h3 class="card__title">Spending by Category</h3></header>
+                    <div class="card__body"><div class="chart-container"><canvas id="categoryChart" role="img" aria-label="Pie chart showing spending by category"></canvas></div></div>
+                </article>
+                <article class="card">
+                    <header class="card__header"><h3 class="card__title">Monthly Trend</h3></header>
+                    <div class="card__body"><div class="chart-container"><canvas id="monthlyChart" role="img" aria-label="Bar chart showing monthly trend"></canvas></div></div>
+                </article>
             </div>
-        </div>
+        </section>
 
-        <!-- Upload Section (Always Visible) -->
-        <div class="mt-8">
-            <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-blue-400 transition-colors bg-white">
-                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a5.166 5.166 0 00-7.308 0L28 28M8 32l9.172-9.172a5.166 5.166 0 017.308 0L28 28m0 0V4m0 4a4 4 0 100-8 4 4 0 000 8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                <p class="mt-4 text-lg text-gray-600">Drag & drop your bank statement here</p>
-                <p class="mt-2 text-sm text-gray-500">Supports CSV, XLSX, XLS (Max 16MB)</p>
-                <input type="file" id="fileInput" class="hidden" accept=".csv,.xlsx,.xls">
-                <button onclick="document.getElementById('fileInput').click()" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Browse Files</button>
+        <!-- Upload -->
+        <section class="mt-8" aria-label="Upload">
+            <div id="dropZone" class="upload-zone" role="button" tabindex="0" aria-label="Drag and drop files or press Enter to browse">
+                <svg class="upload-zone__icon" fill="none" stroke="currentColor" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a5.166 5.166 0 00-7.308 0L28 28M8 32l9.172-9.172a5.166 5.166 0 017.308 0L28 28m0 0V4m0 4a4 4 0 100-8 4 4 0 000 8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <p class="upload-zone__title">Drag & drop your bank statement here</p>
+                <p class="upload-zone__desc">Supports CSV, XLSX, XLS (Max 16MB)</p>
+                <input type="file" id="fileInput" class="sr-only" accept=".csv,.xlsx,.xls">
+                <button type="button" onclick="document.getElementById('fileInput').click()" class="btn btn--primary btn--lg mt-4">Browse Files</button>
             </div>
-            <div id="uploadStatus" class="mt-4 hidden"></div>
-        </div>
+            <div id="uploadStatus" class="mt-4 hidden" role="alert" aria-live="assertive"></div>
+        </section>
 
-        <!-- Transactions Section -->
-        <div id="transactions" class="section hidden fade-in mt-8">
-            <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div class="p-6 border-b flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">All Transactions</h3>
-                    <input type="text" id="searchInput" placeholder="Search transactions..." 
-                           class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                           onkeyup="filterTransactions()">
+        <!-- Transactions -->
+        <section id="transactions" class="section section--hidden mt-8" role="tabpanel" aria-labelledby="tab-transactions">
+            <article class="card mb-6">
+                <header class="card__header">
+                    <h3 class="card__title">Upload Statement</h3>
+                </header>
+                <div class="card__body">
+                    <div id="dropZone" class="upload-zone" role="button" tabindex="0" aria-label="Drag and drop files or press Enter to browse">
+                        <svg class="upload-zone__icon" fill="none" stroke="currentColor" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a5.166 5.166 0 00-7.308 0L28 28M8 32l9.172-9.172a5.166 5.166 0 017.308 0L28 28m0 0V4m0 4a4 4 0 100-8 4 4 0 000 8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <p class="upload-zone__title">Drag & drop your bank statement here</p>
+                        <p class="upload-zone__desc">Supports CSV, XLSX, XLS (Max 16MB)</p>
+                        <input type="file" id="fileInput" class="sr-only" accept=".csv,.xlsx,.xls">
+                        <button type="button" onclick="document.getElementById('fileInput').click()" class="btn btn--primary btn--lg mt-4">Browse Files</button>
+                    </div>
+                    <div id="uploadStatus" class="mt-4 hidden" role="alert" aria-live="assertive"></div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionTable" class="bg-white divide-y divide-gray-200"></tbody>
+            </article>
+            
+            <article class="card">
+                <header class="card__header flex justify-between items-center" style="flex-wrap:wrap;gap:var(--spacing-4)">
+                    <h3 class="card__title">All Transactions</h3>
+                    <label for="searchInput" class="sr-only">Search transactions</label>
+                    <div class="search-wrapper" style="min-width:200px">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input type="text" id="searchInput" placeholder="Search..." class="input search-input" onkeyup="filterTransactions()" aria-describedby="transactionCount">
+                    </div>
+                </header>
+                <div class="table-container">
+                    <table class="table table-desktop" aria-label="Transaction list">
+                        <thead><tr><th scope="col">Date</th><th scope="col">Description</th><th scope="col">Category</th><th scope="col" class="table__numeric">Amount</th></tr></thead>
+                        <tbody id="transactionTable" aria-live="polite"></tbody>
                     </table>
+                    <div id="transactionCards" aria-label="Mobile transaction view"></div>
                 </div>
-                <div class="p-4 border-t bg-gray-50">
-                    <p id="transactionCount" class="text-sm text-gray-600">Loading...</p>
+                <footer class="card__footer"><p id="transactionCount" class="text-sm" aria-live="polite">Loading...</p></footer>
+            </article>
+        </section>
+
+        <!-- Rules -->
+        <section id="rules" class="section section--hidden mt-8" role="tabpanel" aria-labelledby="tab-rules">
+            <article class="card">
+                <header class="card__header"><h3 class="card__title">Categorization Rules</h3></header>
+                <div class="card__body">
+                    <p class="text-sm mb-6">Add keywords to automatically categorize transactions.</p>
+                    <div id="rulesContainer" role="list"></div>
+                    <button type="button" onclick="addNewRule()" class="btn btn--primary mt-6">+ Add Category</button>
+                    <button type="button" onclick="saveRules()" class="btn btn--primary btn--lg w-full mt-4">Save Changes</button>
                 </div>
-            </div>
-        </div>
+            </article>
+        </section>
 
-        <!-- Rules Section -->
-        <div id="rules" class="section hidden fade-in mt-8">
-            <div class="bg-white rounded-lg shadow-sm border p-6">
-                <h3 class="text-lg font-semibold mb-4">Categorization Rules</h3>
-                <p class="text-sm text-gray-600 mb-6">Add keywords to automatically categorize transactions. Changes will re-categorize all existing transactions.</p>
-                <div id="rulesContainer" class="space-y-4"></div>
-                <button onclick="addNewRule()" class="mt-6 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">+ Add New Category</button>
-                <button onclick="saveRules()" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full">Save All Changes</button>
-            </div>
-        </div>
-
-        <!-- Backups Section -->
-        <div id="backups" class="section hidden fade-in mt-8">
-            <div class="bg-white rounded-lg shadow-sm border p-6">
-                <h3 class="text-lg font-semibold mb-4">Automatic Backups</h3>
-                <p class="text-sm text-gray-600 mb-6">Backups are created automatically before any data change. Download them for safekeeping.</p>
-                <div id="backupList" class="space-y-2"></div>
-            </div>
-        </div>
-
+        <!-- Backups -->
+        <section id="backups" class="section section--hidden mt-8" role="tabpanel" aria-labelledby="tab-backups">
+            <article class="card">
+                <header class="card__header"><h3 class="card__title">Automatic Backups</h3></header>
+                <div class="card__body">
+                    <p class="text-sm mb-6">Backups are created before each data change.</p>
+                    <div id="backupList" role="list"></div>
+                </div>
+            </article>
+        </section>
     </main>
+    
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container" role="region" aria-label="Notifications" aria-live="polite"></div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <header class="modal__header">
+                <h3 id="modalTitle" class="modal__title">Confirm Delete</h3>
+                <button type="button" onclick="closeModal()" class="btn btn--secondary" aria-label="Close modal" style="padding:var(--spacing-1)">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </header>
+            <div class="modal__body">
+                <p>Are you sure you want to delete all transactions? This action cannot be undone.</p>
+            </div>
+            <footer class="modal__footer">
+                <button type="button" onclick="closeModal()" class="btn btn--secondary">Cancel</button>
+                <button type="button" onclick="confirmDelete()" class="btn btn--danger">Delete All</button>
+            </footer>
+        </div>
+    </div>
 
     <script>
-        let allTransactions = [];
-        let currentRules = {};
-        let categoryChartInstance = null;
-        let monthlyChartInstance = null;
+        let allTransactions = [], currentRules = {}, categoryChartInstance = null, monthlyChartInstance = null;
 
-        // Navigation
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
-            document.getElementById(sectionId).classList.remove('hidden');
-            
-            // Update nav colors
-            const navButtons = document.querySelectorAll('nav button');
-            navButtons.forEach(btn => {
-                if(btn.textContent.toLowerCase().includes(sectionId)) {
-                    btn.classList.add('text-blue-600');
-                    btn.classList.remove('text-gray-600');
-                } else {
-                    btn.classList.remove('text-blue-600');
-                    btn.classList.add('text-gray-600');
-                }
+        // Toast notifications
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.setAttribute('role', 'alert');
+            const icons = { success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>', error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>', info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>' };
+            toast.innerHTML = `<svg class="toast__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icons[type]}</svg><span class="toast__message">${message}</span><button type="button" class="toast__close" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 5000);
+        }
+
+        // Modal functions
+        function openModal() { document.getElementById('deleteModal').classList.add('modal-overlay--active'); document.querySelector('.modal__footer .btn--danger').focus(); }
+        function closeModal() { document.getElementById('deleteModal').classList.remove('modal-overlay--active'); }
+        document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+        
+        // Mobile nav toggle
+        function toggleMobileNav() {
+            const nav = document.getElementById('navLinks');
+            const btn = document.querySelector('.mobile-nav-toggle');
+            nav.classList.toggle('nav__links--active');
+            btn.setAttribute('aria-expanded', nav.classList.contains('nav__links--active'));
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('[role="tabpanel"]').forEach(el => el.classList.add('section--hidden'));
+            document.getElementById(id).classList.remove('section--hidden');
+            document.querySelectorAll('.nav__link').forEach(btn => {
+                btn.classList.toggle('nav__link--active', btn.textContent.toLowerCase().includes(id));
+                btn.setAttribute('aria-selected', btn.classList.contains('nav__link--active'));
             });
-
-            if(sectionId === 'dashboard') loadDashboard();
-            if(sectionId === 'transactions') renderTransactions(allTransactions);
-            if(sectionId === 'rules') loadRules();
-            if(sectionId === 'backups') loadBackups();
+            if(id === 'dashboard') loadDashboard();
+            if(id === 'transactions') renderTransactions(allTransactions);
+            if(id === 'rules') loadRules();
+            if(id === 'backups') loadBackups();
         }
 
-        // File Upload
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-active'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
-        });
-
-        dropZone.addEventListener('drop', handleDrop, false);
-        fileInput.addEventListener('change', handleFileSelect, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files[0]);
-        }
-
-        function handleFileSelect(e) {
-            handleFiles(e.target.files[0]);
-        }
+        // File Upload with accessibility
+        const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput');
+        ['dragenter','dragover','dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }, false));
+        ['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('upload-zone--drag-active'), false));
+        ['dragleave','drop'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.remove('upload-zone--drag-active'), false));
+        dropZone.addEventListener('drop', e => handleFiles(e.dataTransfer.files[0]), false);
+        fileInput.addEventListener('change', e => handleFiles(e.target.files[0]), false);
+        dropZone.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
 
         async function handleFiles(file) {
             if(!file) return;
             
-            const formData = new FormData();
-            formData.append('file', file);
+            // Validate file size (16MB limit)
+            if(file.size > 16 * 1024 * 1024) {
+                showToast('File too large. Maximum size is 16MB.', 'error');
+                return;
+            }
             
+            const formData = new FormData(); 
+            formData.append('file', file);
             const statusDiv = document.getElementById('uploadStatus');
             statusDiv.classList.remove('hidden');
-            statusDiv.innerHTML = '<div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded">Processing file...</div>';
+            statusDiv.innerHTML = '<div class="alert alert--info">Processing file...</div>';
             
             try {
                 const response = await fetch('/api/upload', { method: 'POST', body: formData });
                 const result = await response.json();
-                
                 if(response.ok) {
-                    statusDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">${result.message}</div>`;
+                    showToast(result.message, 'success');
+                    statusDiv.classList.add('hidden');
                     loadDashboard();
                     allTransactions = await fetch('/api/transactions').then(r => r.json());
                     renderTransactions(allTransactions);
                 } else {
-                    statusDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">Error: ${result.error}</div>`;
+                    showToast('Error: ' + result.error, 'error');
+                    statusDiv.innerHTML = '<div class="alert alert--error">Error: ' + result.error + '</div>';
                 }
             } catch(error) {
-                statusDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">Upload failed: ${error.message}</div>`;
+                showToast('Upload failed: ' + error.message, 'error');
+                statusDiv.innerHTML = '<div class="alert alert--error">Upload failed: ' + error.message + '</div>';
             }
         }
 
-        // Dashboard
+        // Dashboard with loading states
         async function loadDashboard() {
-            const stats = await fetch('/api/stats').then(r => r.json());
+            // Show skeleton loading state
+            document.getElementById('totalIncome').innerHTML = '<span class="skeleton skeleton--row" style="height:2.5rem;width:100px"></span>';
+            document.getElementById('totalExpenses').innerHTML = '<span class="skeleton skeleton--row" style="height:2.5rem;width:100px"></span>';
+            document.getElementById('netBalance').innerHTML = '<span class="skeleton skeleton--row" style="height:2.5rem;width:100px"></span>';
             
+            const stats = await fetch('/api/stats').then(r => r.json());
             document.getElementById('totalIncome').textContent = formatCurrency(stats.total_income || 0);
             document.getElementById('totalExpenses').textContent = formatCurrency(stats.total_expense || 0);
             document.getElementById('netBalance').textContent = formatCurrency(stats.net || 0);
             
-            // Category Chart
-            const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+            const ctxCat = document.getElementById('categoryChart').getContext('2d');
             if(categoryChartInstance) categoryChartInstance.destroy();
-            
-            const categories = Object.keys(stats.by_category || {});
-            const values = Object.values(stats.by_category || {}).map(v => Math.abs(v));
-            const colors = categories.map((_, i) => `hsl(${i * 30}, 70%, 60%)`);
-            
-            categoryChartInstance = new Chart(ctxCategory, {
+            const cats = Object.keys(stats.by_category || {}), vals = Object.values(stats.by_category || {}).map(v => Math.abs(v));
+            const colors = cats.map((_, i) => `hsl(${i * 30}, 70%, 60%)`);
+            categoryChartInstance = new Chart(ctxCat, {
                 type: 'doughnut',
-                data: {
-                    labels: categories,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors,
-                        borderWidth: 0
-                    }]
-                },
+                data: { labels: cats, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false }
             });
             
-            // Monthly Chart
-            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+            const ctxMon = document.getElementById('monthlyChart').getContext('2d');
             if(monthlyChartInstance) monthlyChartInstance.destroy();
-            
-            const months = Object.keys(stats.monthly || {}).slice(0, 12).reverse();
-            const monthlyValues = Object.values(stats.monthly || {}).slice(0, 12).reverse();
-            
-            monthlyChartInstance = new Chart(ctxMonthly, {
+            const months = Object.keys(stats.monthly || {}).slice(0, 12).reverse(), monVals = Object.values(stats.monthly || {}).slice(0, 12).reverse();
+            monthlyChartInstance = new Chart(ctxMon, {
                 type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [{
-                        label: 'Net Flow',
-                        data: monthlyValues,
-                        backgroundColor: monthlyValues.map(v => v >= 0 ? '#10b981' : '#ef4444'),
-                        borderRadius: 4
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
+                data: { labels: months, datasets: [{ label: 'Net Flow', data: monVals, backgroundColor: monVals.map(v => v >= 0 ? '#10b981' : '#ef4444'), borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
-        // Transactions
+        // Transactions with empty state and mobile cards
         async function loadTransactions() {
+            const tbody = document.getElementById('transactionTable');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center"><div class="skeleton skeleton--row"></div><div class="skeleton skeleton--row"></div><div class="skeleton skeleton--row"></div></td></tr>';
             allTransactions = await fetch('/api/transactions').then(r => r.json());
             renderTransactions(allTransactions);
         }
 
-        function renderTransactions(transactions) {
-            const tbody = document.getElementById('transactionTable');
-            tbody.innerHTML = '';
+        function renderTransactions(txs) {
+            const tbody = document.getElementById('transactionTable'), cards = document.getElementById('transactionCards');
+            tbody.innerHTML = ''; cards.innerHTML = '';
             
-            transactions.slice(0, 100).forEach(tx => {
+            if(txs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><svg class="empty-state__icon" style="width:80px;height:80px;opacity:0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><h3 class="empty-state__title">No transactions yet</h3><p class="empty-state__desc">Upload your first bank statement to get started</p><button class="btn btn--primary" onclick="document.getElementById(\'fileInput\').click()">Upload Statement</button></div></td></tr>';
+                document.getElementById('transactionCount').textContent = '0 transactions';
+                return;
+            }
+            
+            txs.slice(0, 100).forEach(tx => {
                 const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50';
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${tx.date}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${tx.description}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                            ${tx.category}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${tx.amount >= 0 ? 'text-green-600' : 'text-red-600'}">
-                        ${formatCurrency(tx.amount)}
-                    </td>
-                `;
+                row.innerHTML = '<td>' + tx.date + '</td><td>' + tx.description + '</td><td><span class="badge badge--info">' + tx.category + '</span></td><td class="table__numeric ' + (tx.amount >= 0 ? 'stat-card__value--pos' : 'stat-card__value--neg') + '">' + formatCurrency(tx.amount) + '</td>';
                 tbody.appendChild(row);
+                
+                // Mobile card
+                const card = document.createElement('div');
+                card.className = 'tx-card';
+                card.innerHTML = '<div class="tx-card__header"><span class="tx-card__date">' + tx.date + '</span><span class="tx-card__amount ' + (tx.amount >= 0 ? 'tx-card__amount--pos' : 'tx-card__amount--neg') + '">' + formatCurrency(tx.amount) + '</span></div><div class="tx-card__desc">' + tx.description + '</div><span class="badge badge--info tx-card__category">' + tx.category + '</span>';
+                cards.appendChild(card);
             });
-            
-            document.getElementById('transactionCount').textContent = `Showing ${Math.min(transactions.length, 100)} of ${transactions.length} transactions`;
+            document.getElementById('transactionCount').textContent = 'Showing ' + Math.min(txs.length, 100) + ' of ' + txs.length + ' transactions';
         }
 
         function filterTransactions() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allTransactions.filter(tx => 
-                tx.description.toLowerCase().includes(query) || 
-                tx.category.toLowerCase().includes(query)
-            );
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allTransactions.filter(tx => tx.description.toLowerCase().includes(q) || tx.category.toLowerCase().includes(q));
             renderTransactions(filtered);
         }
 
         // Rules
         async function loadRules() {
             currentRules = await fetch('/api/rules').then(r => r.json());
-            renderRules();
-        }
-
-        function renderRules() {
             const container = document.getElementById('rulesContainer');
             container.innerHTML = '';
-            
-            Object.entries(currentRules).forEach(([category, keywords]) => {
+            Object.keys(currentRules).forEach(cat => {
                 const div = document.createElement('div');
-                div.className = 'border rounded-md p-4 bg-gray-50';
-                div.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="font-medium text-gray-700">Category Name</label>
-                        <button onclick="removeRule('${category}')" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
-                    </div>
-                    <input type="text" value="${category}" onchange="updateRuleKey('${category}', this.value)" 
-                           class="w-full px-3 py-2 border rounded-md mb-2" placeholder="Category Name">
-                    <label class="block text-sm font-medium text-gray-500 mb-1">Keywords (comma-separated)</label>
-                    <textarea onchange="updateRuleValue('${category}', this.value)" 
-                              class="w-full px-3 py-2 border rounded-md h-20" placeholder="keyword1, keyword2, ...">${keywords.join(', ')}</textarea>
-                `;
+                div.className = 'rule-item';
+                div.setAttribute('role', 'listitem');
+                div.innerHTML = '<label class="rule-item__cat"><span class="sr-only">Category:</span><select class="input rule-item__category" disabled><option>' + cat + '</option></select></label><label class="rule-item__kw"><span class="sr-only">Keywords:</span><input type="text" class="input" value="' + currentRules[cat].join(', ') + '" data-category="' + cat + '" aria-label="Keywords for ' + cat + '"></label><button type="button" class="btn btn--secondary" onclick="removeRule(this, \'' + cat + '\')" aria-label="Remove ' + cat + '">Remove</button>';
                 container.appendChild(div);
             });
         }
 
-        function updateRuleKey(oldKey, newKey) {
-            if(oldKey === newKey) return;
-            const value = currentRules[oldKey];
-            delete currentRules[oldKey];
-            currentRules[newKey] = value;
-        }
-
-        function updateRuleValue(key, value) {
-            const keywords = value.split(',').map(k => k.trim()).filter(k => k);
-            currentRules[key] = keywords;
-        }
-
         function addNewRule() {
-            const categoryName = prompt("Enter new category name:");
-            if(categoryName && !currentRules[categoryName]) {
-                currentRules[categoryName] = [];
-                renderRules();
-            }
+            const container = document.getElementById('rulesContainer');
+            const div = document.createElement('div');
+            div.className = 'rule-item';
+            div.setAttribute('role', 'listitem');
+            div.innerHTML = '<label class="rule-item__cat"><span class="sr-only">Category:</span><input type="text" class="input" placeholder="Category Name" data-new-cat aria-label="New category name"></label><label class="rule-item__kw"><span class="sr-only">Keywords:</span><input type="text" class="input" placeholder="keyword1, keyword2" data-new-kw aria-label="Keywords"></label><button type="button" class="btn btn--secondary" onclick="this.parentElement.remove()" aria-label="Remove">Remove</button>';
+            container.appendChild(div);
         }
 
-        function removeRule(key) {
-            if(confirm(`Delete category "${key}"?`)) {
-                delete currentRules[key];
-                renderRules();
-            }
+        function removeRule(btn, cat) {
+            btn.parentElement.remove();
+            delete currentRules[cat];
         }
 
         async function saveRules() {
-            const response = await fetch('/api/rules', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(currentRules)
+            const newRules = {};
+            document.querySelectorAll('.rule-item').forEach(item => {
+                const catInput = item.querySelector('[data-category]');
+                const newCatInput = item.querySelector('[data-new-cat]');
+                const kwInput = item.querySelector('[data-new-kw]') || item.querySelector('input[data-category]');
+                if(catInput) {
+                    newRules[catInput.dataset.category] = kwInput.value.split(',').map(k => k.trim()).filter(k => k);
+                } else if(newCatInput && newCatInput.value && kwInput) {
+                    newRules[newCatInput.value] = kwInput.value.split(',').map(k => k.trim()).filter(k => k);
+                }
             });
-            
-            if(response.ok) {
-                alert('Rules saved and transactions re-categorized!');
-                loadDashboard();
-                loadTransactions();
-            } else {
-                alert('Failed to save rules');
+            const btn = document.querySelector('button[onclick="saveRules()"]');
+            btn.classList.add('btn--loading'); btn.disabled = true;
+            try {
+                await fetch('/api/rules', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(newRules) });
+                await loadDashboard();
+                allTransactions = await fetch('/api/transactions').then(r => r.json());
+                renderTransactions(allTransactions);
+                showToast('Rules saved successfully!', 'success');
+            } catch(err) {
+                showToast('Failed to save rules', 'error');
+            } finally {
+                btn.classList.remove('btn--loading'); btn.disabled = false;
             }
         }
 
@@ -386,26 +595,25 @@
         async function loadBackups() {
             const backups = await fetch('/api/backups').then(r => r.json());
             const list = document.getElementById('backupList');
-            
+            list.innerHTML = '';
             if(backups.length === 0) {
-                list.innerHTML = '<p class="text-gray-500 italic">No backups yet. Backups are created automatically when you upload files or change rules.</p>';
+                list.innerHTML = '<div class="empty-state"><p class="text-sm" style="color:var(--color-gray-500)">No backups yet. Backups are created automatically before each data change.</p></div>';
                 return;
             }
-            
-            list.innerHTML = backups.map(file => `
-                <div class="flex justify-between items-center p-3 border rounded-md bg-gray-50 hover:bg-gray-100">
-                    <span class="font-mono text-sm">${file}</span>
-                    <a href="/backup/${file}" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">Download</a>
-                </div>
-            `).join('');
+            backups.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'backup-item';
+                div.setAttribute('role', 'listitem');
+                div.innerHTML = '<div><span class="backup-item__name">' + b.name + '</span><br><span class="backup-item__size text-sm" style="color:var(--color-gray-500)">' + b.size + '</span></div><a href="/api/backups/' + encodeURIComponent(b.name) + '" class="btn btn--secondary btn--sm" download aria-label="Download ' + b.name + '">Download</a>';
+                list.appendChild(div);
+            });
         }
 
-        // Utilities
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        function formatCurrency(n) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
         }
 
-        // Initialize
+        // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             loadDashboard();
             loadTransactions();
